@@ -196,4 +196,136 @@
                                     <i :data-lucide="getCatIcon(item.category)" class="w-7 h-7"></i>
                                 </div>
                                 <div class="text-left">
-                                    <span class="text-[10px] font-black opacity-30 uppercase tracking-[0.
+                                    <span class="text-[10px] font-black opacity-30 uppercase tracking-[0.2em]">{{ item.time }}</span>
+                                    <h3 class="text-xl font-black mt-1 leading-tight text-[#7D6E66]">{{ item.name }}</h3>
+                                </div>
+                            </div>
+                            <button @click="openMap(item.address)" class="w-12 h-12 bg-[#F9F6F2] text-[#E5D3B3] rounded-full flex items-center justify-center shadow-sm active:scale-90 transition-transform">
+                                <i data-lucide="navigation" class="w-6 h-6"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3 text-[11px] font-bold opacity-30 leading-relaxed italic text-gray-400">
+                                <i data-lucide="map-pin" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+                                <span>{{ item.address }}</span>
+                            </div>
+                            <div v-if="item.note" class="bg-[#F9F6F2] p-5 rounded-[25px] text-[11px] font-bold leading-relaxed border-l-8 border-[#E5D3B3] text-[#7D6E66]">
+                                💡 備註：{{ item.note }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 底部導航選單 -->
+    <nav class="fixed bottom-10 left-1/2 -translate-x-1/2 w-[85%] h-20 bg-white/90 backdrop-blur-xl rounded-[40px] shadow-2xl flex items-center justify-around px-4 z-50 border border-white">
+        <div v-for="tab in tabs" @click="activeTab = tab.id" 
+            class="flex flex-col items-center gap-1 transition-all cursor-pointer active:scale-125" 
+            :class="activeTab === tab.id ? 'text-[#E5D3B3] scale-110' : 'text-gray-200'">
+            <i :data-lucide="tab.icon" class="w-6 h-6"></i>
+            <span class="text-[8px] font-black uppercase tracking-widest">{{ tab.label }}</span>
+        </div>
+    </nav>
+</div>
+
+<script>
+    const { createApp, ref, computed, onMounted, nextTick, watch } = Vue;
+
+    createApp({
+        setup() {
+            const activeTab = ref('home');
+            const activeDateIndex = ref(0);
+            const activeVjwIdx = ref(0);
+            const jpyInput = ref(8162);
+            const fileInput = ref(null);
+
+            // 圖片路徑自動偵測
+            const bannerList = ['./banner.jpg', './banner.JPG', './banner.png'];
+            const currentBannerIdx = ref(0);
+            const currentBanner = computed(() => bannerList[currentBannerIdx.value]);
+            const tryNextImage = () => { if (currentBannerIdx.value < bannerList.length - 1) currentBannerIdx.value++; };
+
+            const tabs = [
+                { id: 'home', label: 'Home', icon: 'sparkles' },
+                { id: 'schedule', label: 'Schedule', icon: 'map' },
+                { id: 'expense', label: 'Wallet', icon: 'banknote' },
+                { id: 'list', label: 'List', icon: 'check-square' }
+            ];
+
+            const weather = [
+                { date: '5/09', icon: '☀️', temp: '22' },
+                { date: '5/10', icon: '☁️', temp: '20' },
+                { date: '5/11', icon: '☀️', temp: '23' },
+                { date: '5/12', icon: '🌤️', temp: '24' },
+                { date: '5/13', icon: '☀️', temp: '25' }
+            ];
+
+            // VJW 名單
+            const vjwMembers = ref([
+                { icon: '👨🏻', qrUrl: '' },
+                { icon: '👩🏻', qrUrl: '' },
+                { icon: '👶🏻', qrUrl: '' },
+                { icon: '👶🏼', qrUrl: '' }
+            ]);
+
+            const days = [{date: '5/09'}, {date: '5/10'}, {date: '5/11'}, {date: '5/12'}, {date: '5/13'}];
+
+            const scheduleItems = [
+                { day: 0, time: "12:00", category: "航班", name: "星宇航空 JX870", address: "台北桃園國際機場", note: "大象班出發囉！星宇燒肉便當預定成功 ✈️", img: "https://images.unsplash.com/photo-1436491865332-7a61a109c0f3?q=80&w=1000" },
+                { day: 0, time: "16:00", category: "交通", name: "OTS 租車", address: "OTS 租車 那霸機場店", note: "記得帶駕照譯本正本！🚗", img: "" },
+                { day: 0, time: "18:00", category: "住宿", name: "恩納村海邊別墅 🏡", address: "1854 Afuso, Onna", note: "大象班第一晚基地", img: "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=1000" },
+                { day: 1, time: "08:30", category: "景點", name: "美麗海水族館 🐋", address: "美麗海水族館", note: "去看鯨鯊餵食秀。", img: "https://images.unsplash.com/photo-1534067783941-51c9c23ecfd3?q=80&w=1000" }
+            ];
+
+            const currentDayItems = computed(() => scheduleItems.filter(item => item.day === activeDateIndex.value));
+            
+            // 千分位格式化函式
+            const formatNumber = (num) => {
+                if (!num) return "0";
+                return Number(num).toLocaleString('en-US');
+            };
+
+            const openVjwOfficial = () => window.open('https://www.vjw.digital.go.jp/', '_blank');
+            const triggerUpload = () => fileInput.value.click();
+
+            const handleFileUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const base64 = event.target.result;
+                    vjwMembers.value[activeVjwIdx.value].qrUrl = base64;
+                    localStorage.setItem(`vjw_qr_${activeVjwIdx.value}`, base64);
+                };
+                reader.readAsDataURL(file);
+            };
+
+            const openMap = (addr) => window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(addr)}`, '_blank');
+            const getCatIcon = (cat) => ({ '航班': 'plane', '住宿': 'home', '景點': 'camera', '美食': 'utensils', '交通': 'car' }[cat] || 'star');
+            const getCatColor = (cat) => ({ '航班': 'bg-blue-50 text-blue-300', '住宿': 'bg-[#F9F6F2] text-[#E5D3B3]' }[cat] || 'bg-gray-50 text-gray-300');
+
+            onMounted(() => { 
+                if (window.lucide) lucide.createIcons(); 
+                vjwMembers.value.forEach((m, idx) => {
+                    const saved = localStorage.getItem(`vjw_qr_${idx}`);
+                    if (saved) m.qrUrl = saved;
+                });
+            });
+
+            watch([activeTab, activeDateIndex, activeVjwIdx], () => { nextTick(() => { if (window.lucide) lucide.createIcons(); }); });
+
+            return {
+                activeTab, activeDateIndex, activeVjwIdx, jpyInput, tabs, weather, days, 
+                vjwMembers, currentDayItems, currentBanner, tryNextImage, fileInput,
+                openMap, getCatIcon, getCatColor, formatNumber, triggerUpload, handleFileUpload, openVjwOfficial
+            };
+        }
+    }).mount('#app');
+</script>
+
+</body>
+</html>
