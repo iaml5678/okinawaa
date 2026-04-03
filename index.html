@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>大象班🐘 沖繩奶茶手帳 App</title>
+    <title>🐘Okinawa✨ 奶茶手帳 App</title>
     
     <!-- 引入美化工具 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,7 +15,7 @@
         [v-cloak] { display: none; }
         :root {
             --text-brown: #7D6E66;
-            --bg-cream: #F9F6F2; /* 舒服的奶茶底色 */
+            --bg-cream: #F9F6F2;
             --card-white: #FFFFFF;
             --milk-tea: #E5D3B3;
         }
@@ -28,7 +28,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* 圖片漸層透明感效果 */
         .banner-gradient-mask {
             mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
             -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
@@ -43,22 +42,21 @@
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
-        /* 模式切換標籤樣式 */
         .person-tag {
-            @apply px-5 py-2 rounded-full text-[11px] font-black transition-all border-2;
+            @apply px-4 py-2 rounded-xl text-lg transition-all border-2;
         }
 
         .tag-active {
-            background-color: var(--text-brown);
-            color: white;
-            border-color: var(--text-brown);
-            box-shadow: 0 4px 15px rgba(125, 110, 102, 0.2);
+            background-color: var(--soft-white);
+            border-color: #E5D3B3;
+            box-shadow: 0 4px 10px rgba(229, 211, 179, 0.3);
         }
 
         .tag-inactive {
-            background-color: white;
+            background-color: #F9F6F2;
             color: #D1C7C2;
-            border-color: #F0EBE6;
+            border-color: transparent;
+            opacity: 0.5;
         }
 
         input::placeholder { color: #D1C7C2; }
@@ -67,14 +65,13 @@
 <body>
 
 <div id="app" v-cloak>
-    <!-- 1. 頁首 Banner (帶有漸層透明感) -->
+    <!-- 1. 頁首 Banner -->
     <header class="relative w-full h-[280px] overflow-hidden bg-[#F9F6F2]">
         <img :src="currentBanner" class="w-full h-full object-cover banner-gradient-mask" @error="tryNextImage">
         
-        <!-- 頁首標題文字 (白色陰影確保可讀性) -->
-        <div class="absolute top-16 left-8 text-[#7D6E66]">
-            <h1 class="text-3xl font-black italic tracking-tighter">Okinawa Trip</h1>
-            <p class="text-[10px] font-black opacity-40 uppercase tracking-[0.3em] mt-1">Elephant Class 2025</p>
+        <!-- 頁首標題：🐘Okinawa✨ 白色字 -->
+        <div class="absolute top-16 left-8">
+            <h1 class="text-4xl font-black italic tracking-tighter text-white drop-shadow-xl">🐘Okinawa✨</h1>
         </div>
     </header>
 
@@ -84,38 +81,40 @@
         <!-- --- 分頁 A: 首頁 (Home) --- -->
         <div v-if="activeTab === 'home'" class="space-y-7 animate-fade-in pt-4">
             
-            <!-- 匯率試算卡片 (奶茶色精確版) -->
-            <div class="journal-card p-8">
+            <!-- 匯率試算卡片 (千分位格式化) -->
+            <div class="journal-card p-8 relative overflow-hidden">
                 <div class="flex items-center gap-3 mb-8 opacity-40">
                     <i data-lucide="calculator" class="w-4 h-4"></i>
-                    <span class="text-xs font-black tracking-widest uppercase">Currency Converter</span>
+                    <span class="text-xs font-black tracking-widest uppercase">匯率試算</span>
                 </div>
 
                 <div class="flex justify-between items-end mb-10">
                     <div class="w-[42%]">
                         <div class="text-[9px] font-black text-gray-300 mb-3 uppercase tracking-widest">JPY 日幣</div>
+                        <!-- 使用千分位顯示 -->
                         <input type="number" v-model="jpyInput" class="w-full text-4xl font-light text-[#7D6E66] focus:outline-none bg-transparent border-b border-gray-100 pb-2" placeholder="0">
+                        <div class="text-[10px] mt-1 text-gray-300">{{ formatNumber(jpyInput) }} 円</div>
                     </div>
                     <div class="text-2xl font-light text-gray-200 mb-4 px-2">=</div>
                     <div class="w-[42%] text-right">
                         <div class="text-[9px] font-black text-gray-300 mb-3 uppercase tracking-widest">TWD 台幣</div>
                         <div class="text-5xl font-light text-[#7D6E66]">
-                            {{ Math.round(jpyInput * 0.202) }}
+                            {{ formatNumber(Math.round(jpyInput * 0.202)) }}
                         </div>
                     </div>
                 </div>
 
                 <div class="flex justify-between items-center">
-                    <div class="text-[10px] font-bold text-gray-300 tracking-widest">RATE：0.202</div>
+                    <div class="text-[10px] font-bold text-gray-300 tracking-widest">匯率：0.202</div>
                     <!-- 免稅貼紙 -->
                     <div v-if="jpyInput >= 5000" class="flex items-center gap-1 bg-[#D4E6D9] text-[#5A7D63] px-4 py-2 rounded-full text-[10px] font-bold shadow-sm animate-pulse">
                         ✨ 已達免稅
                     </div>
-                    <div v-else class="text-[10px] text-gray-200 font-bold tracking-widest italic">Tax Free (¥5,000)</div>
+                    <div v-else class="text-[10px] text-gray-200 font-bold tracking-widest">未達免稅 (¥5,000)</div>
                 </div>
             </div>
 
-            <!-- 沖繩一週天氣 (包含日期顯示) -->
+            <!-- 沖繩一週天氣 -->
             <div class="journal-card p-8">
                 <div class="flex justify-between items-center mb-8">
                     <span class="text-xs font-bold opacity-30">沖繩一週天氣</span>
@@ -124,60 +123,69 @@
                 <div class="flex justify-between items-center px-1">
                     <div v-for="w in weather" :key="w.date" class="flex flex-col items-center gap-4">
                         <span class="text-[9px] font-black text-gray-300 tracking-tighter">{{ w.date }}</span>
-                        <div class="text-2xl transform hover:scale-125 transition-transform">{{ w.icon }}</div>
+                        <div class="text-2xl">{{ w.icon }}</div>
                         <span class="text-sm font-bold text-[#7D6E66] opacity-70">{{ w.temp }}°</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Visit Japan Web (多人切換：爸爸、媽媽、姐姐、弟弟) -->
-            <div class="journal-card p-8 border-b-8 border-[#E5D3B3]">
+            <!-- Visit Japan Web (點擊上傳截圖) -->
+            <div class="journal-card p-8 border-l-4 border-[#7D6E66]/20">
                 <div class="flex items-center gap-3 mb-8">
                     <i data-lucide="qr-code" class="w-4 h-4 opacity-30 text-[#7D6E66]"></i>
-                    <span class="text-xs font-black opacity-30 tracking-widest uppercase">Entry QR Code</span>
+                    <span class="text-xs font-black opacity-30 tracking-widest uppercase">Visit Japan Web</span>
                 </div>
                 
-                <!-- 人名選擇器：班長可在下方 script 自定義 -->
-                <div class="flex gap-3 mb-8 overflow-x-auto no-scrollbar pb-2">
+                <!-- 人名選擇器 (Emoji) -->
+                <div class="flex gap-4 mb-8 justify-center pb-2">
                     <button v-for="(person, pidx) in vjwMembers" :key="pidx"
                         @click="activeVjwIdx = pidx"
                         class="person-tag"
                         :class="activeVjwIdx === pidx ? 'tag-active' : 'tag-inactive'">
-                        {{ person.name }}
+                        {{ person.icon }}
                     </button>
                 </div>
 
-                <div class="bg-[#FDFBF7] rounded-[35px] p-10 flex flex-col items-center justify-center border-2 border-dashed border-[#E5D3B3]/50">
-                    <div class="w-48 h-48 bg-white rounded-3xl flex items-center justify-center shadow-lg overflow-hidden relative border-4 border-white">
-                        <img :src="vjwMembers[activeVjwIdx].qrUrl" class="w-full h-full object-cover" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ElephantClass&bgcolor=FDFBF7'">
+                <!-- QR 上傳區域 -->
+                <div class="relative bg-[#FDFBF7] rounded-[35px] p-8 flex flex-col items-center justify-center border-2 border-dashed border-[#E5D3B3]/50 min-h-[250px] overflow-hidden"
+                     @click="triggerUpload">
+                    
+                    <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="handleFileUpload">
+                    
+                    <!-- 顯示圖片 -->
+                    <img v-if="vjwMembers[activeVjwIdx].qrUrl" :src="vjwMembers[activeVjwIdx].qrUrl" class="absolute inset-0 w-full h-full object-contain">
+                    
+                    <!-- 沒圖時顯示上傳提示 -->
+                    <div v-else class="flex flex-col items-center text-center">
+                        <div class="text-4xl text-[#E5D3B3] mb-4">+</div>
+                        <div class="text-[12px] font-black text-[#7D6E66] opacity-60">點擊上傳截圖</div>
+                        <div class="text-[9px] text-[#D1C7C2] mt-1">(存於本機)</div>
                     </div>
-                    <p class="mt-6 text-[10px] font-black text-[#E5D3B3] uppercase tracking-[0.4em] italic">VJW QR Code</p>
                 </div>
+
+                <!-- 官網按鈕 -->
+                <button @click="openVjwOfficial" class="w-full mt-6 py-4 bg-[#F5EBEB] text-[#7D6E66] rounded-2xl text-[12px] font-black tracking-widest active:scale-95 transition-all">
+                    開啟 VJW 官網
+                </button>
             </div>
         </div>
 
-        <!-- --- 分頁 B: 行程 (Day 1, Day 2...) --- -->
+        <!-- --- 分頁 B: 行程 (Schedule) --- -->
         <div v-if="activeTab === 'schedule'" class="pt-4 space-y-7 animate-fade-in">
             <div class="flex gap-4 overflow-x-auto no-scrollbar py-2">
                 <button v-for="(day, idx) in days" :key="idx" @click="activeDateIndex = idx"
                     class="flex flex-col items-center min-w-[85px] p-5 rounded-[35px] transition-all shadow-sm"
                     :class="activeDateIndex === idx ? 'bg-[#7D6E66] text-white shadow-xl' : 'bg-white text-gray-300'">
                     <span class="text-[9px] font-black uppercase tracking-widest">Day {{ idx + 1 }}</span>
-                    <span class="text-xl font-black mt-1 tracking-tighter">{{ day.date }}</span>
+                    <span class="text-xl font-black mt-1">{{ day.date }}</span>
                 </button>
             </div>
 
-            <!-- 行程清單 (包含分類、地圖、圖片、時間) -->
             <div class="space-y-7">
-                <div v-for="(item, i) in currentDayItems" :key="i" class="journal-card overflow-hidden active:scale-[0.98] transition-transform shadow-md">
-                    <!-- 行程縮圖 -->
-                    <div v-if="item.img" class="w-full h-48 bg-gray-100 relative">
+                <div v-for="(item, i) in currentDayItems" :key="i" class="journal-card overflow-hidden">
+                    <div v-if="item.img" class="w-full h-48 bg-gray-100">
                         <img :src="item.img" class="w-full h-full object-cover">
-                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-black text-[#7D6E66] tracking-widest uppercase">
-                            {{ item.category }}
-                        </div>
                     </div>
-                    
                     <div class="p-8">
                         <div class="flex justify-between items-start mb-5">
                             <div class="flex gap-4 items-center">
@@ -189,20 +197,17 @@
                                     <h3 class="text-xl font-black mt-1 leading-tight">{{ item.name }}</h3>
                                 </div>
                             </div>
-                            <!-- 導航按鈕 -->
                             <button @click="openMap(item.address)" class="w-12 h-12 bg-[#F9F6F2] text-[#E5D3B3] rounded-full flex items-center justify-center shadow-sm active:scale-90 transition-transform">
                                 <i data-lucide="navigation" class="w-6 h-6"></i>
                             </button>
                         </div>
-                        
-                        <!-- 地址與備註 -->
                         <div class="space-y-4">
-                            <div class="flex items-start gap-3 text-[11px] font-bold opacity-30 leading-relaxed">
-                                <i data-lucide="map-pin" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+                            <div class="flex items-start gap-3 text-[11px] font-bold opacity-30 leading-relaxed italic">
+                                <i data-lucide="map-pin" class="w-4 h-4 mt-0.5"></i>
                                 <span>{{ item.address }}</span>
                             </div>
                             <div v-if="item.note" class="bg-[#F9F6F2] p-5 rounded-[25px] text-[11px] font-bold leading-relaxed border-l-8 border-[#E5D3B3] text-[#7D6E66]">
-                                💡 行程備註：{{ item.note }}
+                                💡 備註：{{ item.note }}
                             </div>
                         </div>
                     </div>
@@ -212,7 +217,7 @@
 
     </main>
 
-    <!-- 底部圓潤導航 -->
+    <!-- 底部導航 -->
     <nav class="fixed bottom-10 left-1/2 -translate-x-1/2 w-[85%] h-20 bg-white/90 backdrop-blur-xl rounded-[40px] shadow-2xl flex items-center justify-around px-4 z-50 border border-white">
         <div v-for="tab in tabs" @click="activeTab = tab.id" 
             class="flex flex-col items-center gap-1 transition-all cursor-pointer" 
@@ -232,9 +237,9 @@
             const activeDateIndex = ref(0);
             const activeVjwIdx = ref(0);
             const jpyInput = ref(8162);
-            const exchangeRate = ref(0.202);
+            const fileInput = ref(null);
 
-            // 圖片補強路徑
+            // 圖片補強
             const bannerList = ['./banner.jpg', './banner.JPG', './banner.png'];
             const currentBannerIdx = ref(0);
             const currentBanner = computed(() => bannerList[currentBannerIdx.value]);
@@ -248,43 +253,72 @@
             ];
 
             const weather = [
-                { date: '5/09', day: 'Sat', icon: '☀️', temp: '22' },
-                { date: '5/10', day: 'Sun', icon: '☁️', temp: '20' },
-                { date: '5/11', day: 'Mon', icon: '☀️', temp: '23' },
-                { date: '5/12', day: 'Tue', icon: '🌤️', temp: '24' },
-                { date: '5/13', day: 'Wed', icon: '☀️', temp: '25' }
+                { date: '5/09', icon: '☀️', temp: '22' },
+                { date: '5/10', icon: '☁️', temp: '20' },
+                { date: '5/11', icon: '☀️', temp: '23' },
+                { date: '5/12', icon: '🌤️', temp: '24' },
+                { date: '5/13', icon: '☀️', temp: '25' }
             ];
 
-            // 班長！在這裡自定義成員名稱！
-            const vjwMembers = [
-                { name: '爸爸', qrUrl: './vjw_dad.jpg' },
-                { name: '媽媽', qrUrl: './vjw_mom.jpg' },
-                { name: '姐姐', qrUrl: './vjw_sister.jpg' },
-                { name: '弟弟', qrUrl: './vjw_brother.jpg' }
-            ];
+            const vjwMembers = ref([
+                { icon: '👨🏻', qrUrl: '' },
+                { icon: '👩🏻', qrUrl: '' },
+                { icon: '👶🏻', qrUrl: '' },
+                { icon: '👶🏼', qrUrl: '' }
+            ]);
 
             const days = [{date: '5/09'}, {date: '5/10'}, {date: '5/11'}, {date: '5/12'}, {date: '5/13'}];
 
             const scheduleItems = [
                 { day: 0, time: "12:00", category: "航班", name: "星宇航空 JX870", address: "台北桃園國際機場", note: "大象班出發囉！星宇燒肉便當預定成功 ✈️", img: "https://images.unsplash.com/photo-1436491865332-7a61a109c0f3?q=80&w=1000" },
-                { day: 0, time: "16:00", category: "交通", name: "OTS 租車", address: "OTS 租車 那霸機場店", note: "記得帶駕照譯本正本！🚗", img: "" },
-                { day: 0, time: "18:00", category: "住宿", name: "恩納村海邊別墅 🏡", address: "1854 Afuso, Onna", note: "放行李、開派對！第一晚基地。", img: "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=1000" },
-                { day: 1, time: "08:30", category: "景點", name: "美麗海水族館 🐋", address: "美麗海水族館", note: "去看巨大的鯨鯊餵食秀。", img: "https://images.unsplash.com/photo-1534067783941-51c9c23ecfd3?q=80&w=1000" }
+                { day: 0, time: "18:00", category: "住宿", name: "恩納村海邊別墅 🏡", address: "1854 Afuso, Onna", note: "大象班第一晚基地", img: "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=1000" }
             ];
 
             const currentDayItems = computed(() => scheduleItems.filter(item => item.day === activeDateIndex.value));
+            
+            // 格式化數字 (千分位)
+            const formatNumber = (num) => {
+                return Number(num).toLocaleString('en-US');
+            };
+
+            // VJW 官網
+            const openVjwOfficial = () => window.open('https://www.vjw.digital.go.jp/', '_blank');
+
+            // 觸發上傳
+            const triggerUpload = () => fileInput.value.click();
+
+            // 處理檔案上傳並儲存至 LocalStorage
+            const handleFileUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const base64 = event.target.result;
+                    vjwMembers.value[activeVjwIdx.value].qrUrl = base64;
+                    localStorage.setItem(`vjw_qr_${activeVjwIdx.value}`, base64);
+                };
+                reader.readAsDataURL(file);
+            };
+
             const openMap = (addr) => window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(addr)}`, '_blank');
-
             const getCatIcon = (cat) => ({ '航班': 'plane', '住宿': 'home', '景點': 'camera', '美食': 'utensils', '交通': 'car' }[cat] || 'star');
-            const getCatColor = (cat) => ({ '航班': 'bg-blue-50 text-blue-300', '住宿': 'bg-[#F9F6F2] text-[#E5D3B3]', '景點': 'bg-green-50 text-green-300', '美食': 'bg-orange-50 text-orange-200' }[cat] || 'bg-gray-50 text-gray-300');
+            const getCatColor = (cat) => ({ '航班': 'bg-blue-50 text-blue-300', '住宿': 'bg-[#F9F6F2] text-[#E5D3B3]' }[cat] || 'bg-gray-50 text-gray-300');
 
-            onMounted(() => { if (window.lucide) lucide.createIcons(); });
+            onMounted(() => { 
+                if (window.lucide) lucide.createIcons(); 
+                // 從 LocalStorage 載入 QR 圖
+                vjwMembers.value.forEach((m, idx) => {
+                    const saved = localStorage.getItem(`vjw_qr_${idx}`);
+                    if (saved) m.qrUrl = saved;
+                });
+            });
+
             watch([activeTab, activeDateIndex, activeVjwIdx], () => { nextTick(() => { if (window.lucide) lucide.createIcons(); }); });
 
             return {
-                activeTab, activeDateIndex, activeVjwIdx, jpyInput, exchangeRate, 
-                tabs, weather, days, vjwMembers, currentDayItems, currentBanner, tryNextImage, 
-                openMap, getCatIcon, getCatColor
+                activeTab, activeDateIndex, activeVjwIdx, jpyInput, tabs, weather, days, 
+                vjwMembers, currentDayItems, currentBanner, tryNextImage, fileInput,
+                openMap, getCatIcon, getCatColor, formatNumber, triggerUpload, handleFileUpload, openVjwOfficial
             };
         }
     }).mount('#app');
