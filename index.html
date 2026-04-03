@@ -3,135 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>大象班🐘 沖繩大冒險</title>
+    <title>大象班🐘 沖繩冒險</title>
     
-    <!-- 引入 Tailwind CSS & 日系圓體字 -->
+    <!-- 引入美化工具 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
     
-    <!-- 引入工具：Vue 3, Lucide Icons, SortableJS, Framer Motion (微動效) -->
+    <!-- 核心大腦：Vue 3 與 圖標庫 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
     <style>
-        :root {
-            --okinawa-blue: #4EB7D0;
-            --hibiscus-pink: #FF8FA3;
-            --sun-yellow: #FFD154;
-            --paper-white: #FDFBF7;
-        }
+        /* 隱身咒：在網頁還沒準備好前先藏起來，避免動不了的尷尬 */
+        [v-cloak] { display: none; }
 
         body {
             font-family: 'M PLUS Rounded 1c', sans-serif;
-            background-color: var(--paper-white);
+            background-color: #FDFBF7;
             color: #5D4037;
-            user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* 隱藏捲動條 */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-
-        /* 超軟陰影設計 */
         .soft-card {
             background: white;
-            border-radius: 32px;
+            border-radius: 30px;
             box-shadow: 0 10px 25px rgba(93, 64, 55, 0.05);
-            border: 1px solid rgba(93, 64, 55, 0.02);
+            transition: transform 0.2s;
         }
 
-        /* 浮動按鈕玻璃質感 */
-        .glass-tab {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+        .soft-card:active { transform: scale(0.95); }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255, 255, 255, 0.5);
         }
 
-        /* 頁首圖片過渡動畫 */
-        .header-curve {
-            border-radius: 0 0 50% 50% / 0 0 15% 15%;
-        }
-
-        /* 點擊縮放效果 */
-        .btn-bounce:active { transform: scale(0.92); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
 <div id="app" v-cloak>
-    <!-- 頁首 Banner 區區塊 -->
-    <header class="relative w-full h-[280px] overflow-hidden shadow-2xl">
-        <!-- 班長！請確認你的圖片檔名是否為 banner.jpg -->
-        <img src="banner.jpg" alt="大象班沖繩出遊" class="w-full h-full object-cover">
+    <!-- 1. 頁首封面 (使用你給的那張美圖) -->
+    <header class="relative w-full h-[260px] shadow-lg">
+        <img src="banner.jpg" alt="Banner" class="w-full h-full object-cover">
         
-        <!-- 浮動在圖片右下方的 Tab 選單 -->
-        <div class="absolute bottom-12 right-4 flex gap-2 z-20">
-            <button v-for="tab in tabs" :key="tab.id" 
-                    @click="activeTab = tab.id"
-                    class="btn-bounce w-12 h-12 rounded-2xl flex items-center justify-center glass-tab transition-all shadow-lg"
-                    :class="activeTab === tab.id ? 'bg-white text-[#4EB7D0] scale-110' : 'text-gray-500 opacity-80'">
+        <!-- 分頁標籤按鈕 (浮動在右下) -->
+        <div class="absolute bottom-6 right-4 flex gap-2">
+            <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id"
+                class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-all"
+                :class="activeTab === tab.id ? 'bg-[#FFD154] text-white scale-110' : 'bg-white/90 text-gray-400'">
                 <i :data-lucide="tab.icon" class="w-6 h-6"></i>
             </button>
         </div>
     </header>
 
-    <!-- 主內容容器：向上拉動與圖片重疊，創造圓潤感 -->
-    <main class="relative -mt-10 bg-inherit rounded-t-[45px] px-5 pb-32 z-10">
+    <!-- 2. 主內容 (向上拉動銜接) -->
+    <main class="relative -mt-8 bg-[#FDFBF7] rounded-t-[40px] px-5 pb-32 pt-8 min-h-screen">
         
-        <!-- 分頁 1: 每日行程 -->
-        <section v-if="activeTab === 'schedule'" class="pt-8">
+        <!-- 行程頁面 -->
+        <div v-if="activeTab === 'schedule'">
             <!-- 天氣 Widget -->
-            <div class="flex items-center justify-between px-2 mb-8">
-                <div class="flex items-center gap-4">
-                    <span class="text-5xl animate-pulse">☀️</span>
-                    <div>
-                        <div class="text-2xl font-black text-[#5D4037]">那霸 26°C</div>
-                        <div class="text-sm font-bold text-gray-400">Feels like 28°C · 超嗨大象日</div>
-                    </div>
+            <div class="flex items-center gap-4 mb-8 bg-white p-4 rounded-[25px] shadow-sm">
+                <span class="text-5xl">☀️</span>
+                <div>
+                    <h2 class="text-2xl font-black italic">Okinawa 26°C</h2>
+                    <p class="text-xs font-bold text-gray-300 uppercase tracking-widest">Elephant Class Adventure</p>
                 </div>
             </div>
 
-            <!-- 日期選擇器：橫向滾動貼紙風 -->
-            <div class="flex gap-4 overflow-x-auto no-scrollbar pb-8 px-2">
-                <button v-for="(day, idx) in days" :key="idx"
-                        @click="activeDateIndex = idx"
-                        class="btn-bounce flex flex-col items-center min-w-[72px] p-4 rounded-3xl transition-all"
-                        :class="activeDateIndex === idx ? 'bg-[#FFD154] text-[#5D4037] shadow-xl scale-110' : 'bg-white text-gray-300 shadow-sm'">
-                    <span class="text-xs font-bold uppercase tracking-widest">{{ day.week }}</span>
-                    <span class="text-2xl font-black mt-1">{{ day.date }}</span>
+            <!-- 日期捲軸 -->
+            <div class="flex gap-4 overflow-x-auto no-scrollbar mb-8">
+                <button v-for="(day, idx) in days" :key="idx" @click="activeDateIndex = idx"
+                    class="flex flex-col items-center min-w-[70px] p-4 rounded-[28px] transition-all"
+                    :class="activeDateIndex === idx ? 'bg-[#FFD154] shadow-lg scale-105' : 'bg-white text-gray-300 shadow-sm'">
+                    <span class="text-[10px] font-black">{{ day.week }}</span>
+                    <span class="text-2xl font-black">{{ day.date }}</span>
                 </button>
             </div>
 
-            <!-- 行程清單區 -->
-            <div id="schedule-list" class="space-y-6">
-                <div v-for="(item, index) in currentDayItems" :key="item.id" class="group">
-                    <!-- 交通標記：在行程之間顯示車子圖案 -->
-                    <div v-if="index > 0" class="flex flex-col items-center w-12 my-2 opacity-20">
-                        <div class="w-0.5 h-6 bg-[#5D4037] border-dashed border-l"></div>
-                        <i data-lucide="car" class="w-4 h-4 my-1"></i>
-                        <div class="w-0.5 h-6 bg-[#5D4037] border-dashed border-l"></div>
+            <!-- 行程清單 -->
+            <div class="space-y-4">
+                <div v-for="(item, i) in currentDayItems" :key="i" @click="openMap(item.address)"
+                    class="soft-card p-5 border border-white flex items-center gap-4">
+                    
+                    <div :class="['w-12 h-12 rounded-2xl flex items-center justify-center', getCatColor(item.category)]">
+                        <i :data-lucide="getCatIcon(item.category)" class="w-6 h-6"></i>
                     </div>
-
-                    <!-- 行程卡片 -->
-                    <div class="soft-card p-6 btn-bounce border-2 border-transparent active:border-[#4EB7D0]/20 transition-all"
-                         @click="openMap(item.address)">
-                        
-                        <!-- 航班類別特殊排版 -->
-                        <div v-if="item.category === '航班'" class="mb-4 p-4 bg-[#E0F2FE]/50 rounded-2xl flex justify-around items-center border border-blue-100">
-                            <div class="text-center"><div class="text-2xl font-black">TPE</div><div class="text-[10px] opacity-50">12:00</div></div>
-                            <div class="flex-1 px-4"><div class="border-b-2 border-dashed border-blue-200 relative"><i data-lucide="plane" class="w-4 h-4 absolute -top-2 left-1/2 -translate-x-1/2 text-blue-400"></i></div></div>
-                            <div class="text-center"><div class="text-2xl font-black">OKA</div><div class="text-[10px] opacity-50">14:30</div></div>
+                    
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-[10px] font-black text-gray-300 uppercase">{{ item.time }}</span>
+                            <span class="bg-gray-100 text-[9px] px-2 py-0.5 rounded-full font-bold text-gray-400">{{ item.category }}</span>
                         </div>
+                        <h3 class="text-lg font-black leading-tight">{{ item.name }}</h3>
+                    </div>
+                    <i data-lucide="chevron-right" class="text-gray-200"></i>
+                </div>
+            </div>
+        </div>
 
-                        <div class="flex items-center gap-5">
-                            <!-- 分類圖示 -->
-                            <div :class="['w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner', getCatColor(item.category)]">
-                                <i :data-lucide="getCatIcon(item.category)" class="w-7 h-7"></i>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2">
-                                    <span class="bg-gray-100 text-[10px] px-2 py-0.5 rounded-full font-bold text-gray-400">{{ item.category }}</span>
-                                    <span class="text-[11px] font-bold text-[#4EB7D0] tracking-tighter">{{ item.time }}</span>
-                                </div>
-                                <
+        <!-- 資訊頁 (匯率) -->
+        <div v-if="activeTab === 'info'" class="pt-4 animate-fade-in">
+            <div class="soft-card p-8 bg-white border-b-8 border-yellow-100">
+                <h3 class="font-black text-xl mb-6">🐘 大象班專屬匯率</h3>
+                <div class="space-y-4">
+                    <input type="number" v-model="jpyInput" class="w-full p-5 bg-gray-50 rounded-3xl text-2xl font-black focus:outline-none" placeholder="輸入日幣 JPY">
+                    <div class="text-center text-pink-300"><i data-lucide="arrow-down"></i></div>
+                    <div class="p-6 bg-[#FDFBF7] rounded-3xl text-center">
+                        <span class="text-4xl font-black text-pink-400">NT$ {{ (jpyInput * 0.21).toFixed(0) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 底部導航 -->
+    <nav class="fixed bottom-6 left-6 right-6 h-20 glass-nav rounded-[35px] shadow-2xl flex items-center justify-around px-4 z-50">
+        <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id"
+            class="flex flex-col items-center gap-1 transition-all"
+            :class="activeTab === tab.id ? 'text-[#4EB7D0] scale-110' : 'text-gray-300'">
+            <i :data-lucide="tab.icon" class="w-6 h-6"></i>
+            <span class="text-[9px] font-black uppercase">{{ tab.label }}</span>
+        </button>
+    </nav>
+</div>
+
+<script>
+    // 這裡就是網頁的核心引擎
+    const { createApp, ref, computed, onMounted, nextTick, watch } = Vue;
+
+    const app = createApp({
+        setup() {
+            const activeTab = ref('schedule');
+            const activeDateIndex = ref(0);
+            const jpyInput = ref(0);
+
+            const tabs = [
+                { id: 'schedule', label: '冒險', icon: 'map-pin' },
+                { id: 'info', label: '資訊', icon: 'info' },
+                { id: 'expense', label: '記帳', icon: 'wallet' }
+            ];
+
+            const days = [
+                { week: 'Thu', date: '9' }, { week: 'Fri', date: '10' },
+                { week: 'Sat', date: '11' }, { week: 'Sun', date: '12' }, { week: 'Mon', date: '13' }
+            ];
+
+            const scheduleItems = [
+                { day: 0, time: "12:00", category: "航班", name: "星宇航空 JX870", address: "那霸機場" },
+                { day: 0, time: "18:00", category: "住宿", name: "恩納村海邊別墅", address: "1854 Afuso, Onna" },
+                { day: 1, time: "08:30", category: "景點", name: "美麗海水族館", address: "美麗海水族館" },
+                { day: 2, time: "10:00", category: "景點", name: "沖繩兒童王國 🐘", address: "沖繩兒童王國" }
+            ];
+
+            const currentDayItems = computed(() => {
+                return scheduleItems.filter(item => item.day === activeDateIndex.value);
+            });
+
+            const openMap = (address) => {
+                window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`, '_blank');
+            };
+
+            const getCatIcon = (cat) => {
+                const icons = { '航班': 'plane', '住宿': 'home', '景點': 'camera', '美食': 'utensils' };
+                return icons[cat] || 'star';
+            };
+
+            const getCatColor = (cat) => {
+                const colors = { '航班': 'bg-blue-50 text-blue-400', '住宿': 'bg-indigo-50 text-indigo-400', '景點': 'bg-green-50 text-green-400', '美食': 'bg-orange-50 text-orange-400' };
+                return colors[cat] || 'bg-gray-50';
+            };
+
+            // 啟動圖標庫
+            const refreshIcons = () => {
+                nextTick(() => { if (window.lucide) lucide.createIcons(); });
+            };
+
+            onMounted(() => { refreshIcons(); });
+            watch([activeTab, activeDateIndex], () => { refreshIcons(); });
+
+            return {
+                activeTab, activeDateIndex, tabs, days, currentDayItems,
+                jpyInput, openMap, getCatIcon, getCatColor
+            };
+        }
+    });
+
+    // 正式啟動！
+    app.mount('#app');
+</script>
+
+</body>
+</html>
