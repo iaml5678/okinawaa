@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>🐘Okinawa✨ 奶茶手帳 App</title>
+    <title>大象班🐘 沖繩奶茶手帳</title>
     
     <!-- 引入美化工具 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -28,6 +28,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
+        /* 圖片漸層透明效果 */
         .banner-gradient-mask {
             mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
             -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
@@ -47,7 +48,7 @@
         }
 
         .tag-active {
-            background-color: var(--soft-white);
+            background-color: white;
             border-color: #E5D3B3;
             box-shadow: 0 4px 10px rgba(229, 211, 179, 0.3);
         }
@@ -65,53 +66,55 @@
 <body>
 
 <div id="app" v-cloak>
-    <!-- 1. 頁首 Banner -->
+    <!-- 1. 頁首 Banner (純淨無標題版) -->
     <header class="relative w-full h-[280px] overflow-hidden bg-[#F9F6F2]">
         <img :src="currentBanner" class="w-full h-full object-cover banner-gradient-mask" @error="tryNextImage">
-        
-        <!-- 頁首標題：🐘Okinawa✨ 白色字 -->
-        <div class="absolute top-16 left-8">
-            <h1 class="text-4xl font-black italic tracking-tighter text-white drop-shadow-xl">🐘Okinawa✨</h1>
-        </div>
     </header>
 
     <!-- 2. 主內容區域 -->
-    <main class="relative -mt-16 px-6 pb-44 z-10 space-y-7">
+    <main class="relative -mt-20 px-6 pb-44 z-10 space-y-7">
         
         <!-- --- 分頁 A: 首頁 (Home) --- -->
         <div v-if="activeTab === 'home'" class="space-y-7 animate-fade-in pt-4">
             
-            <!-- 匯率試算卡片 (千分位格式化) -->
+            <!-- 匯率試算卡片 (同步顯示千分位) -->
             <div class="journal-card p-8 relative overflow-hidden">
-                <div class="flex items-center gap-3 mb-8 opacity-40">
-                    <i data-lucide="calculator" class="w-4 h-4"></i>
+                <div class="flex items-center gap-3 mb-6 opacity-40">
+                    <i data-lucide="calculator" class="w-4 h-4 text-brown"></i>
                     <span class="text-xs font-black tracking-widest uppercase">匯率試算</span>
                 </div>
 
-                <div class="flex justify-between items-end mb-10">
-                    <div class="w-[42%]">
-                        <div class="text-[9px] font-black text-gray-300 mb-3 uppercase tracking-widest">JPY 日幣</div>
-                        <!-- 使用千分位顯示 -->
-                        <input type="number" v-model="jpyInput" class="w-full text-4xl font-light text-[#7D6E66] focus:outline-none bg-transparent border-b border-gray-100 pb-2" placeholder="0">
-                        <div class="text-[10px] mt-1 text-gray-300">{{ formatNumber(jpyInput) }} 円</div>
+                <div class="flex justify-between items-start mb-8 relative z-10">
+                    <!-- 左側：日幣輸入 -->
+                    <div class="w-[45%]">
+                        <div class="text-[9px] font-black text-gray-300 mb-2 uppercase tracking-widest">JPY 日幣</div>
+                        <!-- 大大的千分位顯示 -->
+                        <div class="text-4xl font-light text-[#7D6E66] leading-tight mb-1 truncate">
+                            {{ formatNumber(jpyInput || 0) }}
+                        </div>
+                        <input type="number" v-model="jpyInput" class="w-full text-xs font-bold text-gray-200 focus:outline-none bg-transparent border-b border-gray-100 pb-1" placeholder="輸入日幣">
                     </div>
-                    <div class="text-2xl font-light text-gray-200 mb-4 px-2">=</div>
-                    <div class="w-[42%] text-right">
-                        <div class="text-[9px] font-black text-gray-300 mb-3 uppercase tracking-widest">TWD 台幣</div>
-                        <div class="text-5xl font-light text-[#7D6E66]">
+                    
+                    <div class="text-2xl font-light text-gray-200 mt-6 px-1">=</div>
+                    
+                    <!-- 右側：台幣結果 -->
+                    <div class="w-[45%] text-right">
+                        <div class="text-[9px] font-black text-gray-300 mb-2 uppercase tracking-widest">TWD 台幣</div>
+                        <div class="text-4xl font-light text-[#7D6E66] leading-tight mb-1 truncate">
                             {{ formatNumber(Math.round(jpyInput * 0.202)) }}
                         </div>
+                        <div class="text-[10px] font-bold text-gray-200 mt-3 tracking-widest italic">Rate: 0.202</div>
                     </div>
                 </div>
 
-                <div class="flex justify-between items-center">
-                    <div class="text-[10px] font-bold text-gray-300 tracking-widest">匯率：0.202</div>
+                <div class="flex justify-end items-center">
                     <!-- 免稅貼紙 -->
                     <div v-if="jpyInput >= 5000" class="flex items-center gap-1 bg-[#D4E6D9] text-[#5A7D63] px-4 py-2 rounded-full text-[10px] font-bold shadow-sm animate-pulse">
                         ✨ 已達免稅
                     </div>
-                    <div v-else class="text-[10px] text-gray-200 font-bold tracking-widest">未達免稅 (¥5,000)</div>
+                    <div v-else class="text-[10px] text-gray-200 font-bold tracking-widest italic">Tax Free (¥5,000)</div>
                 </div>
+                <div class="absolute -top-6 -right-6 w-20 h-20 bg-[#F9F6F2] rounded-full opacity-40"></div>
             </div>
 
             <!-- 沖繩一週天氣 -->
@@ -123,20 +126,20 @@
                 <div class="flex justify-between items-center px-1">
                     <div v-for="w in weather" :key="w.date" class="flex flex-col items-center gap-4">
                         <span class="text-[9px] font-black text-gray-300 tracking-tighter">{{ w.date }}</span>
-                        <div class="text-2xl">{{ w.icon }}</div>
+                        <div class="text-2xl transform active:scale-125 transition-transform">{{ w.icon }}</div>
                         <span class="text-sm font-bold text-[#7D6E66] opacity-70">{{ w.temp }}°</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Visit Japan Web (點擊上傳截圖) -->
-            <div class="journal-card p-8 border-l-4 border-[#7D6E66]/20">
+            <!-- Visit Japan Web (點擊上傳截圖 / 多人切換) -->
+            <div class="journal-card p-8 border-l-4 border-[#7D6E66]/10">
                 <div class="flex items-center gap-3 mb-8">
                     <i data-lucide="qr-code" class="w-4 h-4 opacity-30 text-[#7D6E66]"></i>
-                    <span class="text-xs font-black opacity-30 tracking-widest uppercase">Visit Japan Web</span>
+                    <span class="text-xs font-black opacity-30 tracking-widest uppercase text-gray-400">Visit Japan Web</span>
                 </div>
                 
-                <!-- 人名選擇器 (Emoji) -->
+                <!-- Emoji 切換標籤：👨🏻、👩🏻、👶🏻、👶🏼 -->
                 <div class="flex gap-4 mb-8 justify-center pb-2">
                     <button v-for="(person, pidx) in vjwMembers" :key="pidx"
                         @click="activeVjwIdx = pidx"
@@ -152,177 +155,45 @@
                     
                     <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="handleFileUpload">
                     
-                    <!-- 顯示圖片 -->
                     <img v-if="vjwMembers[activeVjwIdx].qrUrl" :src="vjwMembers[activeVjwIdx].qrUrl" class="absolute inset-0 w-full h-full object-contain">
                     
-                    <!-- 沒圖時顯示上傳提示 -->
                     <div v-else class="flex flex-col items-center text-center">
                         <div class="text-4xl text-[#E5D3B3] mb-4">+</div>
-                        <div class="text-[12px] font-black text-[#7D6E66] opacity-60">點擊上傳截圖</div>
-                        <div class="text-[9px] text-[#D1C7C2] mt-1">(存於本機)</div>
+                        <div class="text-[12px] font-black text-[#7D6E66] opacity-60 italic">點擊上傳截圖</div>
+                        <div class="text-[9px] text-[#D1C7C2] mt-1 tracking-widest uppercase">(存於本機)</div>
                     </div>
                 </div>
 
                 <!-- 官網按鈕 -->
-                <button @click="openVjwOfficial" class="w-full mt-6 py-4 bg-[#F5EBEB] text-[#7D6E66] rounded-2xl text-[12px] font-black tracking-widest active:scale-95 transition-all">
+                <button @click="openVjwOfficial" class="w-full mt-6 py-4 bg-[#F5EBEB] text-[#7D6E66] rounded-2xl text-[12px] font-black tracking-[0.3em] active:scale-95 transition-all shadow-sm">
                     開啟 VJW 官網
                 </button>
             </div>
         </div>
 
-        <!-- --- 分頁 B: 行程 (Schedule) --- -->
+        <!-- --- 分頁 B: 行程 (Day 1, Day 2...) --- -->
         <div v-if="activeTab === 'schedule'" class="pt-4 space-y-7 animate-fade-in">
-            <div class="flex gap-4 overflow-x-auto no-scrollbar py-2">
+            <!-- 天數切換 -->
+            <div class="flex gap-4 overflow-x-auto no-scrollbar py-2 px-1">
                 <button v-for="(day, idx) in days" :key="idx" @click="activeDateIndex = idx"
-                    class="flex flex-col items-center min-w-[85px] p-5 rounded-[35px] transition-all shadow-sm"
+                    class="flex flex-col items-center min-w-[85px] p-5 rounded-[35px] transition-all shadow-sm active:scale-95"
                     :class="activeDateIndex === idx ? 'bg-[#7D6E66] text-white shadow-xl' : 'bg-white text-gray-300'">
                     <span class="text-[9px] font-black uppercase tracking-widest">Day {{ idx + 1 }}</span>
                     <span class="text-xl font-black mt-1">{{ day.date }}</span>
                 </button>
             </div>
 
+            <!-- 行程清單 (包含分類、地圖、圖片、時間、備註) -->
             <div class="space-y-7">
-                <div v-for="(item, i) in currentDayItems" :key="i" class="journal-card overflow-hidden">
+                <div v-for="(item, i) in currentDayItems" :key="i" class="journal-card overflow-hidden active:scale-[0.98] transition-transform">
                     <div v-if="item.img" class="w-full h-48 bg-gray-100">
                         <img :src="item.img" class="w-full h-full object-cover">
                     </div>
-                    <div class="p-8">
+                    <div class="p-8 text-left">
                         <div class="flex justify-between items-start mb-5">
-                            <div class="flex gap-4 items-center">
-                                <div :class="['w-14 h-14 rounded-[20px] flex items-center justify-center shadow-inner', getCatColor(item.category)]">
+                            <div class="flex gap-4 items-center text-left">
+                                <div :class="['w-14 h-14 rounded-[22px] flex items-center justify-center shadow-inner', getCatColor(item.category)]">
                                     <i :data-lucide="getCatIcon(item.category)" class="w-7 h-7"></i>
                                 </div>
-                                <div>
-                                    <span class="text-[10px] font-black opacity-30 uppercase tracking-[0.2em]">{{ item.time }}</span>
-                                    <h3 class="text-xl font-black mt-1 leading-tight">{{ item.name }}</h3>
-                                </div>
-                            </div>
-                            <button @click="openMap(item.address)" class="w-12 h-12 bg-[#F9F6F2] text-[#E5D3B3] rounded-full flex items-center justify-center shadow-sm active:scale-90 transition-transform">
-                                <i data-lucide="navigation" class="w-6 h-6"></i>
-                            </button>
-                        </div>
-                        <div class="space-y-4">
-                            <div class="flex items-start gap-3 text-[11px] font-bold opacity-30 leading-relaxed italic">
-                                <i data-lucide="map-pin" class="w-4 h-4 mt-0.5"></i>
-                                <span>{{ item.address }}</span>
-                            </div>
-                            <div v-if="item.note" class="bg-[#F9F6F2] p-5 rounded-[25px] text-[11px] font-bold leading-relaxed border-l-8 border-[#E5D3B3] text-[#7D6E66]">
-                                💡 備註：{{ item.note }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- 底部導航 -->
-    <nav class="fixed bottom-10 left-1/2 -translate-x-1/2 w-[85%] h-20 bg-white/90 backdrop-blur-xl rounded-[40px] shadow-2xl flex items-center justify-around px-4 z-50 border border-white">
-        <div v-for="tab in tabs" @click="activeTab = tab.id" 
-            class="flex flex-col items-center gap-1 transition-all cursor-pointer" 
-            :class="activeTab === tab.id ? 'text-[#E5D3B3] scale-110' : 'text-gray-200'">
-            <i :data-lucide="tab.icon" class="w-6 h-6"></i>
-            <span class="text-[8px] font-black uppercase tracking-widest">{{ tab.label }}</span>
-        </div>
-    </nav>
-</div>
-
-<script>
-    const { createApp, ref, computed, onMounted, nextTick, watch } = Vue;
-
-    createApp({
-        setup() {
-            const activeTab = ref('home');
-            const activeDateIndex = ref(0);
-            const activeVjwIdx = ref(0);
-            const jpyInput = ref(8162);
-            const fileInput = ref(null);
-
-            // 圖片補強
-            const bannerList = ['./banner.jpg', './banner.JPG', './banner.png'];
-            const currentBannerIdx = ref(0);
-            const currentBanner = computed(() => bannerList[currentBannerIdx.value]);
-            const tryNextImage = () => { if (currentBannerIdx.value < bannerList.length - 1) currentBannerIdx.value++; };
-
-            const tabs = [
-                { id: 'home', label: 'Home', icon: 'sparkles' },
-                { id: 'schedule', label: 'Schedule', icon: 'map' },
-                { id: 'expense', label: 'Wallet', icon: 'banknote' },
-                { id: 'list', label: 'List', icon: 'check-square' }
-            ];
-
-            const weather = [
-                { date: '5/09', icon: '☀️', temp: '22' },
-                { date: '5/10', icon: '☁️', temp: '20' },
-                { date: '5/11', icon: '☀️', temp: '23' },
-                { date: '5/12', icon: '🌤️', temp: '24' },
-                { date: '5/13', icon: '☀️', temp: '25' }
-            ];
-
-            const vjwMembers = ref([
-                { icon: '👨🏻', qrUrl: '' },
-                { icon: '👩🏻', qrUrl: '' },
-                { icon: '👶🏻', qrUrl: '' },
-                { icon: '👶🏼', qrUrl: '' }
-            ]);
-
-            const days = [{date: '5/09'}, {date: '5/10'}, {date: '5/11'}, {date: '5/12'}, {date: '5/13'}];
-
-            const scheduleItems = [
-                { day: 0, time: "12:00", category: "航班", name: "星宇航空 JX870", address: "台北桃園國際機場", note: "大象班出發囉！星宇燒肉便當預定成功 ✈️", img: "https://images.unsplash.com/photo-1436491865332-7a61a109c0f3?q=80&w=1000" },
-                { day: 0, time: "18:00", category: "住宿", name: "恩納村海邊別墅 🏡", address: "1854 Afuso, Onna", note: "大象班第一晚基地", img: "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=1000" }
-            ];
-
-            const currentDayItems = computed(() => scheduleItems.filter(item => item.day === activeDateIndex.value));
-            
-            // 格式化數字 (千分位)
-            const formatNumber = (num) => {
-                return Number(num).toLocaleString('en-US');
-            };
-
-            // VJW 官網
-            const openVjwOfficial = () => window.open('https://www.vjw.digital.go.jp/', '_blank');
-
-            // 觸發上傳
-            const triggerUpload = () => fileInput.value.click();
-
-            // 處理檔案上傳並儲存至 LocalStorage
-            const handleFileUpload = (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const base64 = event.target.result;
-                    vjwMembers.value[activeVjwIdx.value].qrUrl = base64;
-                    localStorage.setItem(`vjw_qr_${activeVjwIdx.value}`, base64);
-                };
-                reader.readAsDataURL(file);
-            };
-
-            const openMap = (addr) => window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(addr)}`, '_blank');
-            const getCatIcon = (cat) => ({ '航班': 'plane', '住宿': 'home', '景點': 'camera', '美食': 'utensils', '交通': 'car' }[cat] || 'star');
-            const getCatColor = (cat) => ({ '航班': 'bg-blue-50 text-blue-300', '住宿': 'bg-[#F9F6F2] text-[#E5D3B3]' }[cat] || 'bg-gray-50 text-gray-300');
-
-            onMounted(() => { 
-                if (window.lucide) lucide.createIcons(); 
-                // 從 LocalStorage 載入 QR 圖
-                vjwMembers.value.forEach((m, idx) => {
-                    const saved = localStorage.getItem(`vjw_qr_${idx}`);
-                    if (saved) m.qrUrl = saved;
-                });
-            });
-
-            watch([activeTab, activeDateIndex, activeVjwIdx], () => { nextTick(() => { if (window.lucide) lucide.createIcons(); }); });
-
-            return {
-                activeTab, activeDateIndex, activeVjwIdx, jpyInput, tabs, weather, days, 
-                vjwMembers, currentDayItems, currentBanner, tryNextImage, fileInput,
-                openMap, getCatIcon, getCatColor, formatNumber, triggerUpload, handleFileUpload, openVjwOfficial
-            };
-        }
-    }).mount('#app');
-</script>
-
-</body>
-</html>
+                                <div class="text-left">
+                                    <span class="text-[10px] font-black opacity-30 uppercase tracking-[0.
