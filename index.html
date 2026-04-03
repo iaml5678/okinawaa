@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>大象班🐘 沖繩冒險</title>
+    <title>大象班🐘 沖繩畢業大冒險</title>
     
     <!-- 引入美化工具 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,187 +14,142 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        /* 隱身咒：在網頁還沒準備好前先藏起來，避免動不了的尷尬 */
         [v-cloak] { display: none; }
-
         body {
             font-family: 'M PLUS Rounded 1c', sans-serif;
-            background-color: #FDFBF7;
+            background-color: #F7F9FB;
             color: #5D4037;
             -webkit-tap-highlight-color: transparent;
         }
-
         .soft-card {
             background: white;
-            border-radius: 30px;
-            box-shadow: 0 10px 25px rgba(93, 64, 55, 0.05);
-            transition: transform 0.2s;
+            border-radius: 28px;
+            box-shadow: 0 8px 20px rgba(93, 64, 55, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.8);
         }
-
-        .soft-card:active { transform: scale(0.95); }
-
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid rgba(255, 255, 255, 0.5);
-        }
-
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        .tab-active {
+            background: #FFD154;
+            color: #5D4037;
+            transform: scale(1.1);
+        }
+        /* 圖片下方圓弧銜接 */
+        .header-curve {
+            border-radius: 0 0 45px 45px;
+        }
     </style>
 </head>
 <body>
 
 <div id="app" v-cloak>
-    <!-- 1. 頁首封面 (使用你給的那張美圖) -->
-    <header class="relative w-full h-[260px] shadow-lg">
-        <img src="banner.jpg" alt="Banner" class="w-full h-full object-cover">
+    <!-- 1. 頁首 Banner (圖片區域) -->
+    <header class="relative w-full h-[250px] overflow-hidden shadow-lg header-curve bg-[#A2DFF7]">
+        <!-- 班長！請確認圖片名稱一定要是 banner.jpg -->
+        <img src="./banner.jpg" alt="大象班沖繩照片" class="w-full h-full object-cover">
         
-        <!-- 分頁標籤按鈕 (浮動在右下) -->
-        <div class="absolute bottom-6 right-4 flex gap-2">
+        <!-- 分頁 Tab 按鈕 (浮動在圖片右下方) -->
+        <div class="absolute bottom-4 right-4 flex gap-2 z-20">
             <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id"
-                class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-all"
-                :class="activeTab === tab.id ? 'bg-[#FFD154] text-white scale-110' : 'bg-white/90 text-gray-400'">
-                <i :data-lucide="tab.icon" class="w-6 h-6"></i>
+                class="w-11 h-11 rounded-2xl flex flex-col items-center justify-center transition-all shadow-lg backdrop-blur-md bg-white/70"
+                :class="activeTab === tab.id ? 'tab-active' : 'text-gray-400'">
+                <i :data-lucide="tab.icon" class="w-5 h-5"></i>
             </button>
         </div>
     </header>
 
-    <!-- 2. 主內容 (向上拉動銜接) -->
-    <main class="relative -mt-8 bg-[#FDFBF7] rounded-t-[40px] px-5 pb-32 pt-8 min-h-screen">
+    <!-- 2. 主內容區域 (向上拉動銜接) -->
+    <main class="relative -mt-10 px-5 pb-32 z-10">
         
-        <!-- 行程頁面 -->
-        <div v-if="activeTab === 'schedule'">
-            <!-- 天氣 Widget -->
-            <div class="flex items-center gap-4 mb-8 bg-white p-4 rounded-[25px] shadow-sm">
-                <span class="text-5xl">☀️</span>
-                <div>
-                    <h2 class="text-2xl font-black italic">Okinawa 26°C</h2>
-                    <p class="text-xs font-bold text-gray-300 uppercase tracking-widest">Elephant Class Adventure</p>
+        <!-- --- 分頁 A: 首頁 (Weather, Currency, VJW) --- -->
+        <div v-if="activeTab === 'home'" class="pt-2 space-y-5">
+            <!-- 天氣看板 -->
+            <div class="soft-card p-6 flex justify-between items-center bg-gradient-to-br from-white to-blue-50">
+                <div class="flex items-center gap-4">
+                    <span class="text-5xl animate-pulse">☀️</span>
+                    <div>
+                        <h2 class="text-2xl font-black text-[#5D4037]">Okinawa</h2>
+                        <p class="text-xs font-bold text-blue-300">26°C · 體感 28°C</p>
+                    </div>
+                </div>
+                <div class="text-right text-[10px] font-bold text-gray-300 uppercase leading-tight">
+                    Elephant<br>Class Trip
                 </div>
             </div>
 
-            <!-- 日期捲軸 -->
-            <div class="flex gap-4 overflow-x-auto no-scrollbar mb-8">
+            <!-- 匯率換算器 -->
+            <div class="soft-card p-6">
+                <h3 class="text-sm font-black mb-4 flex items-center gap-2">
+                    <i data-lucide="refresh-cw" class="w-4 h-4 text-pink-300"></i> 日幣換算
+                </h3>
+                <div class="flex items-center gap-3">
+                    <input type="number" v-model="jpyInput" class="w-full p-4 bg-gray-50 rounded-2xl text-xl font-black focus:outline-none border-none" placeholder="JPY ¥">
+                    <i data-lucide="arrow-right" class="text-gray-300"></i>
+                    <div class="w-full p-4 bg-pink-50 text-pink-500 rounded-2xl text-xl font-black text-center">
+                        TWD ${{ (jpyInput * 0.21).toFixed(0) }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visit Japan Web 快速通道 -->
+            <div class="soft-card p-6 border-2 border-yellow-100 bg-yellow-50/30">
+                <h3 class="text-sm font-black mb-4 flex items-center gap-2">
+                    <i data-lucide="qr-code" class="w-4 h-4 text-yellow-500"></i> Visit Japan Web (VJW)
+                </h3>
+                <button @click="showQR = !showQR" class="w-full py-4 bg-[#5D4037] text-white rounded-2xl font-black flex items-center justify-center gap-3 active:scale-95 transition-all shadow-lg">
+                    <i data-lucide="external-link" class="w-5 h-5"></i>
+                    開啟入境 QR Code
+                </button>
+                <!-- 展開後的 QR 圖示 (預留位置) -->
+                <div v-if="showQR" class="mt-4 p-4 bg-white rounded-3xl flex flex-col items-center animate-bounce-in">
+                    <div class="w-48 h-48 bg-gray-100 rounded-2xl flex items-center justify-center border-2 border-dashed border-gray-200">
+                        <span class="text-gray-400 text-xs text-center px-4">班長！請將 VJW 的截圖命名為 vjw.jpg 上傳到 GitHub 即可顯示</span>
+                    </div>
+                    <p class="text-[10px] mt-4 text-gray-400">登機前/入境時請出示此畫面</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- --- 分頁 B: 行程 (Schedule) --- -->
+        <div v-if="activeTab === 'schedule'" class="pt-2">
+            <!-- 日期選擇 -->
+            <div class="flex gap-4 overflow-x-auto no-scrollbar mb-6 py-2">
                 <button v-for="(day, idx) in days" :key="idx" @click="activeDateIndex = idx"
-                    class="flex flex-col items-center min-w-[70px] p-4 rounded-[28px] transition-all"
-                    :class="activeDateIndex === idx ? 'bg-[#FFD154] shadow-lg scale-105' : 'bg-white text-gray-300 shadow-sm'">
-                    <span class="text-[10px] font-black">{{ day.week }}</span>
-                    <span class="text-2xl font-black">{{ day.date }}</span>
+                    class="flex flex-col items-center min-w-[65px] p-4 rounded-[26px] transition-all shadow-sm"
+                    :class="activeDateIndex === idx ? 'bg-[#FFD154] scale-105' : 'bg-white text-gray-300'">
+                    <span class="text-[9px] font-black uppercase">{{ day.week }}</span>
+                    <span class="text-xl font-black">{{ day.date }}</span>
                 </button>
             </div>
 
-            <!-- 行程清單 -->
+            <!-- 行程列表 -->
             <div class="space-y-4">
                 <div v-for="(item, i) in currentDayItems" :key="i" @click="openMap(item.address)"
-                    class="soft-card p-5 border border-white flex items-center gap-4">
-                    
+                    class="soft-card p-5 flex items-center gap-4 transition-transform active:scale-95">
                     <div :class="['w-12 h-12 rounded-2xl flex items-center justify-center', getCatColor(item.category)]">
                         <i :data-lucide="getCatIcon(item.category)" class="w-6 h-6"></i>
                     </div>
-                    
                     <div class="flex-1">
                         <div class="flex items-center gap-2 mb-1">
-                            <span class="text-[10px] font-black text-gray-300 uppercase">{{ item.time }}</span>
-                            <span class="bg-gray-100 text-[9px] px-2 py-0.5 rounded-full font-bold text-gray-400">{{ item.category }}</span>
+                            <span class="text-[10px] font-black text-gray-300">{{ item.time }}</span>
+                            <span class="bg-gray-100 text-[9px] px-2 py-0.5 rounded-full font-black text-gray-400">{{ item.category }}</span>
                         </div>
-                        <h3 class="text-lg font-black leading-tight">{{ item.name }}</h3>
+                        <h3 class="text-base font-black leading-tight">{{ item.name }}</h3>
                     </div>
-                    <i data-lucide="chevron-right" class="text-gray-200"></i>
+                    <i data-lucide="navigation" class="w-4 h-4 text-blue-300"></i>
                 </div>
             </div>
         </div>
 
-        <!-- 資訊頁 (匯率) -->
-        <div v-if="activeTab === 'info'" class="pt-4 animate-fade-in">
-            <div class="soft-card p-8 bg-white border-b-8 border-yellow-100">
-                <h3 class="font-black text-xl mb-6">🐘 大象班專屬匯率</h3>
-                <div class="space-y-4">
-                    <input type="number" v-model="jpyInput" class="w-full p-5 bg-gray-50 rounded-3xl text-2xl font-black focus:outline-none" placeholder="輸入日幣 JPY">
-                    <div class="text-center text-pink-300"><i data-lucide="arrow-down"></i></div>
-                    <div class="p-6 bg-[#FDFBF7] rounded-3xl text-center">
-                        <span class="text-4xl font-black text-pink-400">NT$ {{ (jpyInput * 0.21).toFixed(0) }}</span>
-                    </div>
-                </div>
+        <!-- --- 分頁 C: 記帳 (Expense) --- -->
+        <div v-if="activeTab === 'expense'" class="pt-2 space-y-4">
+            <div class="soft-card p-8 bg-[#5D4037] text-white shadow-xl relative overflow-hidden">
+                <div class="text-xs font-bold opacity-50 tracking-widest">TOTAL BUDGET SPENT</div>
+                <div class="text-4xl font-black mt-2 italic">¥ 152,400</div>
+                <div class="absolute -right-6 -bottom-6 text-8xl opacity-10">🐘</div>
             </div>
-        </div>
-
-    </main>
-
-    <!-- 底部導航 -->
-    <nav class="fixed bottom-6 left-6 right-6 h-20 glass-nav rounded-[35px] shadow-2xl flex items-center justify-around px-4 z-50">
-        <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id"
-            class="flex flex-col items-center gap-1 transition-all"
-            :class="activeTab === tab.id ? 'text-[#4EB7D0] scale-110' : 'text-gray-300'">
-            <i :data-lucide="tab.icon" class="w-6 h-6"></i>
-            <span class="text-[9px] font-black uppercase">{{ tab.label }}</span>
-        </button>
-    </nav>
-</div>
-
-<script>
-    // 這裡就是網頁的核心引擎
-    const { createApp, ref, computed, onMounted, nextTick, watch } = Vue;
-
-    const app = createApp({
-        setup() {
-            const activeTab = ref('schedule');
-            const activeDateIndex = ref(0);
-            const jpyInput = ref(0);
-
-            const tabs = [
-                { id: 'schedule', label: '冒險', icon: 'map-pin' },
-                { id: 'info', label: '資訊', icon: 'info' },
-                { id: 'expense', label: '記帳', icon: 'wallet' }
-            ];
-
-            const days = [
-                { week: 'Thu', date: '9' }, { week: 'Fri', date: '10' },
-                { week: 'Sat', date: '11' }, { week: 'Sun', date: '12' }, { week: 'Mon', date: '13' }
-            ];
-
-            const scheduleItems = [
-                { day: 0, time: "12:00", category: "航班", name: "星宇航空 JX870", address: "那霸機場" },
-                { day: 0, time: "18:00", category: "住宿", name: "恩納村海邊別墅", address: "1854 Afuso, Onna" },
-                { day: 1, time: "08:30", category: "景點", name: "美麗海水族館", address: "美麗海水族館" },
-                { day: 2, time: "10:00", category: "景點", name: "沖繩兒童王國 🐘", address: "沖繩兒童王國" }
-            ];
-
-            const currentDayItems = computed(() => {
-                return scheduleItems.filter(item => item.day === activeDateIndex.value);
-            });
-
-            const openMap = (address) => {
-                window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`, '_blank');
-            };
-
-            const getCatIcon = (cat) => {
-                const icons = { '航班': 'plane', '住宿': 'home', '景點': 'camera', '美食': 'utensils' };
-                return icons[cat] || 'star';
-            };
-
-            const getCatColor = (cat) => {
-                const colors = { '航班': 'bg-blue-50 text-blue-400', '住宿': 'bg-indigo-50 text-indigo-400', '景點': 'bg-green-50 text-green-400', '美食': 'bg-orange-50 text-orange-400' };
-                return colors[cat] || 'bg-gray-50';
-            };
-
-            // 啟動圖標庫
-            const refreshIcons = () => {
-                nextTick(() => { if (window.lucide) lucide.createIcons(); });
-            };
-
-            onMounted(() => { refreshIcons(); });
-            watch([activeTab, activeDateIndex], () => { refreshIcons(); });
-
-            return {
-                activeTab, activeDateIndex, tabs, days, currentDayItems,
-                jpyInput, openMap, getCatIcon, getCatColor
-            };
-        }
-    });
-
-    // 正式啟動！
-    app.mount('#app');
-</script>
-
-</body>
-</html>
+            <!-- 模擬花費項目 -->
+            <div class="soft-card p-4 space-y-4">
+                <div class="flex justify-between items-center p-2 border-b border-gray-50 pb-4">
+                    <div class="flex gap-3 items-center">
+                        <div class="w-10 h-10 bg-orange-50 text-orange-400 rounded-xl flex items-center justify-center"><i data-lucide="utensils" class="w-5 h-5"></i></div>
+                        <div><div class="font-black text
