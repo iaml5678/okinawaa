@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>🐘Okinawa✨ 奶茶手帳</title>
+    <title>🐘Okinawa✨ 奶茶手帳 App</title>
     
+    <!-- 引入美化工具 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
+        [v-cloak] { display: none; }
         :root {
             --milk-tea: #E5D3B3;
             --text-brown: #7D6E66;
@@ -24,25 +26,49 @@
             margin: 0; padding: 0;
             -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
         }
 
-        /* 底部導航 - 絕對最頂層鎖定 */
-        .force-nav {
+        /* 終極底部導航 - 解決不見的問題 */
+        .app-bottom-nav {
             position: fixed !important;
             bottom: 0 !important;
             left: 0 !important;
             right: 0 !important;
             height: 85px !important;
-            background: #FFFFFF !important;
-            border-top: 1px solid #E5D3B3 !important;
+            background: #FFFFFF !important; /* 強制純白，防止透明看不到 */
+            border-top: 1.5px solid var(--milk-tea) !important;
             display: flex !important;
+            flex-direction: row !important;
             justify-content: space-around !important;
             align-items: center !important;
-            z-index: 999999 !important;
+            z-index: 99999999 !important; /* 神級層級 */
             padding-bottom: env(safe-area-inset-bottom) !important;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.05) !important;
+            box-shadow: 0 -8px 30px rgba(0,0,0,0.08) !important;
+        }
+
+        .nav-item {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 4px !important;
+            flex: 1 !important;
+            color: #D1C7C2 !important;
+        }
+
+        .nav-item-active {
+            color: var(--milk-tea) !important;
+        }
+
+        .nav-icon-bg {
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+
+        .nav-item-active .nav-icon-bg {
+            background-color: var(--milk-tea-light);
         }
 
         .modal-overlay {
@@ -50,7 +76,7 @@
             inset: 0;
             background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(8px);
-            z-index: 1000000;
+            z-index: 100000000;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -76,20 +102,20 @@
         }
         .tax-sticker { animation: tax-blink 1.5s infinite ease-in-out; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        input::placeholder { color: #D1C7C2; }
     </style>
 </head>
 <body>
 
-<div id="app">
-    <!-- 底部選單導航欄 (移至最上層結構，確保優先渲染) -->
-    <nav class="force-nav">
-        <button v-for="t in tabs" :key="t.id" @click="activeTab = t.id" class="flex flex-col items-center gap-1 transition-all" :class="activeTab === t.id ? 'text-[#D2B48C] scale-110' : 'text-gray-300'">
-            <div :class="['p-2 rounded-2xl transition-all', activeTab === t.id ? 'bg-[#FDF5E6] shadow-inner' : '']">
+<div id="app" v-cloak>
+    <!-- 底部導航欄 (獨立結構，確保最優先渲染) -->
+    <nav class="app-bottom-nav">
+        <div v-for="t in tabs" :key="t.id" @click="activeTab = t.id" 
+             class="nav-item" :class="{'nav-item-active': activeTab === t.id}">
+            <div class="nav-icon-bg">
                 <i :data-lucide="t.icon" class="w-6 h-6"></i>
             </div>
-            <span class="text-[9px] font-black uppercase tracking-widest">{{ t.label }}</span>
-        </button>
+            <span class="text-[10px] font-black uppercase tracking-widest">{{ t.label }}</span>
+        </div>
     </nav>
 
     <!-- 1. 頁首 Banner -->
@@ -98,12 +124,12 @@
         <div class="absolute top-12 left-8 text-white drop-shadow-md font-black italic text-3xl italic tracking-tighter">Okinawa Trip</div>
     </header>
 
-    <!-- 2. 主內容區域 -->
-    <main class="relative -mt-12 px-6 pb-40 z-10">
+    <!-- 2. 主內容 -->
+    <main class="relative -mt-12 px-6 pb-44 z-10">
         
         <!-- --- A. 首頁 (Home) --- -->
-        <div v-if="activeTab === 'home'" class="space-y-6 pt-4">
-            <!-- 匯率試算 (一進入為空白) -->
+        <div v-if="activeTab === 'home'" class="space-y-6 pt-4 animate-fade-in">
+            <!-- 匯率試算 (初始空白) -->
             <div class="journal-card p-8">
                 <div class="flex items-center gap-2 mb-6 opacity-40 text-xs font-black italic"><i data-lucide="calculator" class="w-4 h-4"></i> 匯率試算</div>
                 <div class="flex justify-between items-end mb-8">
@@ -126,7 +152,7 @@
 
             <!-- 天氣 Forecast -->
             <div class="journal-card p-7">
-                <div class="flex justify-between items-center mb-6 opacity-30 text-[10px] font-black uppercase tracking-widest"><span>Weather Forecast</span><span>Naha, JP</span></div>
+                <div class="flex justify-between items-center mb-6 opacity-30 text-[10px] font-black uppercase tracking-widest"><span>Forecast</span><span>Naha, JP</span></div>
                 <div class="flex justify-between items-center px-1">
                     <div v-for="w in weather" :key="w.date" class="flex flex-col items-center gap-2">
                         <span class="text-[9px] font-black text-gray-300">{{ w.date }}</span>
@@ -150,28 +176,28 @@
                 <button @click="openVjw" class="w-full mt-6 py-4 bg-[#F5EBEB] text-[#7D6E66] rounded-2xl text-[11px] font-black tracking-widest active:scale-95">開啟 VJW 官網</button>
             </div>
 
-            <!-- 按鈕 -->
+            <!-- 功能按鈕 -->
             <div class="flex gap-4 pb-12">
                 <button @click="showEmergency = true" class="flex-1 py-4 bg-[#5D4037] text-white rounded-full font-bold text-xs shadow-lg flex items-center justify-center gap-2 active:scale-95"><i data-lucide="shield-alert" class="w-4 h-4"></i> 緊急聯絡</button>
                 <button @click="showDrive = true" class="flex-1 py-4 bg-white text-[#7D6E66] rounded-full font-bold text-xs shadow-md border border-gray-100 flex items-center justify-center gap-2 active:scale-95"><i data-lucide="car" class="w-4 h-4"></i> 自駕模式</button>
             </div>
         </div>
 
-        <!-- --- B. 行程 --- -->
-        <div v-if="activeTab === 'schedule'" class="space-y-6 pt-4">
+        <!-- --- B. 行程 (Day 1 - Day 5) --- -->
+        <div v-if="activeTab === 'schedule'" class="space-y-6 pt-4 animate-fade-in">
             <div class="flex gap-3 overflow-x-auto no-scrollbar py-2 px-1">
                 <button v-for="(d, idx) in days" :key="idx" @click="activeDateIndex = idx" :class="['flex flex-col items-center min-w-[75px] p-4 rounded-[30px] transition-all shadow-sm', activeDateIndex === idx ? 'bg-[#7D6E66] text-white' : 'bg-white text-gray-300']">
-                    <span class="text-[8px] font-black uppercase">Day {{ idx + 1 }}</span><span class="text-lg font-black mt-1">{{ d.date }}</span>
+                    <span class="text-[8px] font-bold">Day {{ idx + 1 }}</span><span class="text-lg font-black mt-1">{{ d.date }}</span>
                 </button>
             </div>
             <div class="space-y-6 pb-20">
-                <div v-for="(item, i) in currentDayItems" :key="i" class="journal-card overflow-hidden transition-all active:scale-[0.98]">
+                <div v-for="(item, i) in currentDayItems" :key="i" class="journal-card overflow-hidden">
                     <div v-if="item.img" class="w-full h-44 bg-gray-100"><img :src="item.img" class="w-full h-full object-cover"></div>
                     <div class="p-7">
-                        <div class="flex justify-between items-start mb-4">
+                        <div class="flex justify-between items-start mb-4 text-left">
                             <div class="flex gap-4 text-left">
                                 <div :class="['w-11 h-11 rounded-2xl flex items-center justify-center shadow-inner flex-shrink-0', getCatColor(item.category)]"><i :data-lucide="getCatIcon(item.category)" class="w-6 h-6"></i></div>
-                                <div><div class="text-[9px] font-bold opacity-30 tracking-widest uppercase">{{ item.time }} | {{ item.category }}</div><h3 class="text-md font-black mt-1 text-[#7D6E66] leading-tight text-left">{{ item.name }}</h3></div>
+                                <div><div class="text-[9px] font-bold opacity-30 tracking-widest uppercase">{{ item.time }} | {{ item.category }}</div><h3 class="text-md font-black mt-1 text-[#7D6E66] leading-tight">{{ item.name }}</h3></div>
                             </div>
                             <button @click="openMap(item.address)" class="p-2.5 bg-[#F9F6F2] text-[#E5D3B3] rounded-full active:scale-90 shadow-sm"><i data-lucide="navigation" class="w-4 h-4"></i></button>
                         </div>
@@ -181,14 +207,16 @@
                 </div>
             </div>
         </div>
+
+        <div v-if="activeTab === 'expense' || activeTab === 'list'" class="pt-20 text-center opacity-20 font-black italic">Coming Soon...</div>
     </main>
 
-    <!-- 緊急聯絡彈窗 (質感奶茶色) -->
+    <!-- 緊急聯絡彈窗 (奶茶白質感) -->
     <div v-if="showEmergency" class="modal-overlay" @click.self="showEmergency = false">
-        <div class="bg-white w-full max-w-sm rounded-[45px] p-8 space-y-8 relative shadow-2xl mx-4">
+        <div class="bg-white w-full max-w-sm rounded-[45px] p-8 space-y-8 animate-fade-in relative shadow-2xl">
             <div class="flex justify-between items-center text-[#7D6E66]">
                 <h3 class="text-xl font-black">緊急聯絡資訊</h3>
-                <button @click="showEmergency = false" class="p-3 bg-gray-50 rounded-full active:scale-90 text-[#7D6E66]"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <button @click="showEmergency = false" class="p-3 bg-gray-100 rounded-full active:scale-90 text-[#7D6E66]"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="space-y-6">
                 <div class="text-[9px] font-black opacity-30 uppercase tracking-[0.2em]">緊急報案</div>
@@ -196,9 +224,8 @@
                     <div class="p-6 bg-[#FEF2F2] rounded-[30px] border border-red-50 text-[#F87171] font-black shadow-sm"><div class="text-3xl mb-1 font-black">110</div><div class="text-[10px] opacity-60 font-black">警察局</div></div>
                     <div class="p-6 bg-[#FEF2F2] rounded-[30px] border border-red-50 text-[#F87171] font-black shadow-sm"><div class="text-3xl mb-1 font-black">119</div><div class="text-[10px] opacity-60 font-black">救護車/火警</div></div>
                 </div>
-                <!-- 駐那霸辦事處 - 奶茶質感化 -->
                 <div class="p-6 bg-[#FDF5E6] rounded-[30px] flex justify-between items-center border border-[#E5D3B3]/40 shadow-sm">
-                    <div class="text-left"><div class="font-black text-[#8D775F] text-base">駐那霸辦事處</div><div class="text-[9px] text-[#A69076] font-black mt-1">護照遺失 / 急難救助</div></div>
+                    <div class="text-left"><div class="font-black text-[#8D775F] text-base">駐那霸辦事處</div><div class="text-[9px] text-[#A69076] font-black mt-1 text-left">護照遺失 / 急難救助</div></div>
                     <a href="tel:+819019421107" class="bg-white px-5 py-2 rounded-xl text-[10px] font-black text-[#8D775F] shadow-sm active:scale-95">撥打專線</a>
                 </div>
                 <div class="p-6 border border-[#E5D3B3]/30 rounded-[35px] space-y-5 bg-white shadow-sm">
@@ -211,11 +238,11 @@
 
     <!-- 自駕模式彈窗 -->
     <div v-if="showDrive" class="modal-overlay flex-col justify-end" @click.self="showDrive = false">
-        <div class="bg-white w-full rounded-t-[50px] p-10 space-y-8 max-h-[85vh] overflow-y-auto relative shadow-2xl">
-            <div class="flex justify-between items-center text-[#7D6E66]"><h3 class="text-xl font-black flex items-center gap-2"><i data-lucide="car"></i> 自駕模式</h3><button @click="showDrive = false" class="p-3 bg-gray-50 rounded-full active:scale-90 text-[#7D6E66]"><i data-lucide="x" class="w-6 h-6"></i></button></div>
+        <div class="bg-white w-full rounded-t-[50px] p-10 space-y-8 animate-slide-up max-h-[85vh] overflow-y-auto relative shadow-2xl">
+            <div class="flex justify-between items-center text-[#7D6E66]"><h3 class="text-xl font-black flex items-center gap-2"><i data-lucide="car"></i> 自駕模式</h3><button @click="showDrive = false" class="p-3 bg-gray-100 rounded-full active:scale-90 text-[#7D6E66]"><i data-lucide="x" class="w-6 h-6"></i></button></div>
             <div class="space-y-8">
                 <div class="p-8 bg-[#FDFBF7] rounded-[35px] border border-gray-100 shadow-inner">
-                    <div class="flex justify-between items-center mb-4 opacity-30 text-xs font-black uppercase text-left"><span><i data-lucide="map-pin" class="inline w-3 h-3"></i> Parking Location</span></div>
+                    <div class="flex justify-between items-center mb-4 opacity-30 text-xs font-black uppercase text-left"><span><i data-lucide="map-pin" class="inline w-3 h-3"></i> Parking Spot</span></div>
                     <input v-model="parkingSpot" class="w-full p-5 bg-white rounded-2xl border-none text-md font-bold shadow-inner mb-4 focus:ring-1 ring-[#E5D3B3]" placeholder="輸入樓層 / 格號">
                     <div class="h-48 bg-white rounded-[35px] border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden shadow-sm" @click="triggerParking">
                         <input type="file" ref="parkingFile" class="hidden" @change="handleParking">
@@ -224,8 +251,8 @@
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-5 text-center font-black pb-10 border-t border-gray-100 pt-8 text-[#7D6E66]">
-                    <div class="p-6 bg-[#FDF5E6] rounded-[30px] border border-[#E5D3B3]/20 shadow-sm"><div class="text-[10px] opacity-40 mb-1">口訣</div><div class="text-lg text-center">靠左行駛</div></div>
-                    <div class="p-6 bg-[#FDF5E6] rounded-[30px] border border-[#E5D3B3]/20 shadow-sm"><div class="text-[10px] opacity-40 mb-1">轉彎</div><div class="text-lg text-center">右大左小</div></div>
+                    <div class="p-6 bg-[#FDF5E6] rounded-[30px] border border-[#E5D3B3]/20 shadow-sm"><div class="text-[10px] opacity-40 mb-1 font-black">口訣</div><div class="text-lg">靠左行駛</div></div>
+                    <div class="p-6 bg-[#FDF5E6] rounded-[30px] border border-[#E5D3B3]/20 shadow-sm"><div class="text-[10px] opacity-40 mb-1 font-black">轉彎</div><div class="text-lg">右大左小</div></div>
                 </div>
             </div>
         </div>
@@ -255,18 +282,18 @@ createApp({
         const scheduleItems = [
             { day: 0, time: "12:00", category: "航班", name: "✈️ 星宇航空 JX870", address: "桃園機場", note: "大象班出發！", img: "https://images.unsplash.com/photo-1436491865332-7a61a109c0f3?q=80&w=1000" },
             { day: 0, time: "16:00", category: "交通", name: "🚗 OTS 租車", address: "OTS租車 那霸機場店", note: "辦理取車" },
-            { day: 0, time: "20:00", category: "活動", name: "美國村 (煙火秀)", address: "美國村", note: "煙火 20:00 開始🎆", img: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=1000" },
-            { day: 0, time: "Stay", category: "住宿", name: "民宿別墅 🏡", address: "1854 Afuso, Onna", note: "CHECK IN 第一晚" },
+            { day: 0, time: "20:00", category: "活動", name: "美國村 (煙火秀)", address: "美國村", note: "20:00 開始🎆", img: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=1000" },
+            { day: 0, time: "Stay", category: "住宿", name: "民宿別墅 🏡", address: "1854 Afuso, Onna", note: "第一晚基地" },
             { day: 1, time: "08:30", category: "景點", name: "美麗海水族館 🐋", address: "美麗海水族館", img: "https://images.unsplash.com/photo-1534067783941-51c9c23ecfd3?q=80&w=1000" },
-            { day: 1, time: "13:00", category: "美食", name: "潛水員牛排 🥩", address: "潛水員牛排", note: "必吃厚切牛排" },
-            { day: 1, time: "16:30", category: "活動", name: "瀨底島玻璃船 🚤", address: "瀨底島", note: "看海底魚群" },
-            { day: 2, time: "Morning", category: "景點", name: "沖繩兒童王國 🐘", address: "沖繩兒童王國", note: "看大象朋友" },
-            { day: 2, time: "Shop", category: "活動", name: "Parco City 購物", address: "PARCO CITY", note: "血拼買伴手禮" },
-            { day: 2, time: "Stay", category: "住宿", name: "琉球名城飯店", address: "琉球名城飯店", note: "Check-in 高級飯店" },
-            { day: 3, time: "Morning", category: "活動", name: "飯店玩水 🏊‍♂️", address: "琉球名城飯店", note: "放鬆玩水一整天" },
-            { day: 3, time: "Afternoon", category: "景點", name: "國際通+第一牧志市場", address: "國際通", note: "沖繩市區觀光" },
-            { day: 3, time: "Dinner", category: "美食", name: "Roins 沖繩和牛 🥩", address: "Roins", note: "奢華和牛大餐" },
-            { day: 4, time: "09:00", category: "景點", name: "DDM iias + DMM水族館 🦪", address: "DMM水族館", note: "挖珍珠體驗" },
+            { day: 1, time: "13:00", category: "美食", name: "潛水員牛排 🥩", address: "潛水員牛排", note: "大象班必吃" },
+            { day: 1, time: "16:30", category: "活動", name: "瀨底島玻璃船 🚤", address: "瀨底島" },
+            { day: 2, time: "Morning", category: "景點", name: "沖繩兒童王國 🐘", address: "沖繩兒童王國" },
+            { day: 2, time: "Shop", category: "活動", name: "Parco City 購物", address: "PARCO CITY" },
+            { day: 2, time: "Stay", category: "住宿", name: "琉球名城飯店", address: "琉球名城飯店" },
+            { day: 3, time: "Morning", category: "活動", name: "飯店玩水 🏊‍♂️", address: "琉球名城飯店" },
+            { day: 3, time: "Afternoon", category: "景點", name: "國際通+牧志市場", address: "國際通" },
+            { day: 3, time: "Dinner", category: "美食", name: "Roins 沖繩和牛 🥩", address: "Roins" },
+            { day: 4, time: "09:00", category: "景點", name: "DDM iias + DMM水族館 🦪", address: "DMM水族館" },
             { day: 4, time: "16:00", category: "交通", name: "OTS 還車", address: "OTS還車點" },
             { day: 4, time: "18:00", category: "航班", name: "✈️ 星宇航空 JX871", address: "那霸機場" }
         ];
@@ -306,5 +333,11 @@ createApp({
 }).mount('#app');
 </script>
 
+<style>
+.animate-fade-in { animation: fadeIn 0.2s ease-out forwards; }
+.animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+</style>
 </body>
 </html>
